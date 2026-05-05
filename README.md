@@ -10,7 +10,7 @@ leveraging Crossref, Sci-Hub and Libgen.
 ## Quick start
 
 ```console
-$ wget https://raw.githubusercontent.com/dougy147/scitopdf/master/scitopdf
+$ wget https://raw.githubusercontent.com/dougy147/scitopdf/refs/heads/master/bin/scitopdf
 $ chmod +x ./scitopdf
 $ ./scitopdf "paper you are looking for"
 ```
