@@ -252,10 +252,10 @@ locate_website() {
     # (adapt according to location/lang/..., send PR!)
     # might need shopt -s extglob for pattern matching
     case "${LANG}" in
-	en_*) site="https://sci-hub.se";; # can somebody test?
-	fr_*) site="https://sci-hub.se";; # can somebody test?
-	ru_*) site="https://sci-hub.ru";; # can somebody test?
-	*) site="https://sci-hub.se";;
+        en_*) site="https://www.sci-hub.st";; # can somebody test?
+        fr_*) site="https://www.sci-hub.st";; # can somebody test?
+        ru_*) site="https://www.sci-hub.ru";; # can somebody test?
+        *)    site="https://www.sci-hub.st";;
     esac
     return
 }
@@ -329,7 +329,7 @@ search_crossref() {
 	      sed -E "s/\"DOI\"\s*:\s*\"//" | \
 	      sed 's_\\__')
 
-	download_link="$(curl ${curl_SH_opts} -L -s "${site}/${doi}" | grep -ioP "(?<=src=\")[^'\"]+?.pdf" | head -n 1 | sed 's/^\/\/\///;s/^\/\///;s/^\///')"
+	download_link="$(curl ${curl_SH_opts} -L -s "${site}/${doi}" | grep -ioP "(?<=(src|content)=\")[^'\"]+?.pdf" | head -n 1 | sed 's/^\/\/\///;s/^\/\///;s/^\///')"
 	check_website_url_inside_link
 }
 
@@ -399,12 +399,12 @@ paper_search() {
 	    if [[ $(grep -io "https\?://" <<< "${concatenate}") && ! $(grep -io "doi" <<< "${concatenate}") ]]; then
 		concatenate=$(sed "s/'//g ; s/\ //g" <<< "${concatenate}" | sed 's/\\//g')
 		download_link="$(curl -L -s ${curl_SH_opts} "${concatenate}"           | \
-				 grep -ioP "(?<=src=\")[^'\"]+?.pdf" | \
+                grep -ioP "(?<=(src|content)=\")[^'\"]+?.pdf" | \
 				 head -n 1                           | \
 				 sed 's/^\/\/\/// ; s/^\/\/// ; s/^\///')"
 		if [[ -z "${download_link}" ]]; then
 		    download_link="$(curl -L -s ${curl_SH_opts} "${site}/${concatenate}"     | \
-				     grep -ioP "(?<=src=\")[^'\"]+?.pdf" | \
+				     grep -ioP "(?<=(src|content)=\")[^'\"]+?.pdf" | \
 				     head -n 1                           | \
 				     sed 's/^\/\/\/// ; s/^\/\/// ; s/^\///')"
 		fi
@@ -413,24 +413,24 @@ paper_search() {
 	    # 	>> IF USER_SEARCH CONTAINS "/" >> EITHER VALID URL (but previous test failed) or BADLY FORMATED URL or DOI
 	    if [[ $(grep -o "/" <<< "${user_search}" | head -n 1) ]]; then
 		download_link="$(curl -L -s ${curl_SH_opts} "${site}/${user_search}"     | \
-				 grep -ioP "(?<=src=\")[^'\"]+?.pdf" | \
+				 grep -ioP "(?<=(src|content)=\")[^'\"]+?.pdf" | \
 		    		 head -n 1                           | \
 		    		 sed 's/^\/\/\/// ; s/^\/\///')"
 		if [[ -z "${download_link}" ]]; then
 		    download_link="$(curl -L -s ${curl_SH_opts} "${user_search}"           | \
-		   	             grep -ioP "(?<=src=\")[^'\"]+?.pdf" | \
+		   	             grep -ioP "(?<=(src|content)=\")[^'\"]+?.pdf" | \
 		    		     head -n 1                           | \
 		    		     sed 's/^\/\/\/// ; s/^\/\///')"
 		fi
 	        if [[ -z "${download_link}" ]]; then
 	            download_link="$(curl -L -s ${curl_SH_opts} "https://${user_search}"   | \
-		    		     grep -ioP "(?<=src=\")[^'\"]+?.pdf" | \
+		    		     grep -ioP "(?<=(src|content)=\")[^'\"]+?.pdf" | \
 		    		     head -n 1                           | \
 		    		     sed 's/^\/\/\/// ; s/^\/\///')"
 	        fi
 	        if [[ -z "${download_link}" ]]; then
 	            download_link="$(curl -L -s ${curl_SH_opts} "http://${user_search}"    | \
-		    		     grep -ioP "(?<=src=\")[^'\"]+?.pdf" | \
+		    		     grep -ioP "(?<=(src|content)=\")[^'\"]+?.pdf" | \
 		    		     head -n 1                           | \
 		    		     sed 's/^\/\/\/// ; s/^\/\///')"
 	        fi
@@ -439,7 +439,7 @@ paper_search() {
 		    		       sed "s,$site/,, ; s,$url_without_http/,," | \
 		    		       sed 's/https\?:\/\///' | sed "s/doi.org\///" )
 	            download_link="$(curl -L -s ${curl_SH_opts} "${site}/${transform_to_doi}" | \
-		    		     grep -ioP "(?<=src=\")[^'\"]+?.pdf"  | \
+		    		     grep -ioP "(?<=(src|content)=\")[^'\"]+?.pdf"  | \
 		    		     head -n 1                            | \
 		    		     sed 's/^\/\/\/// ; s/^\/\///')"
 		fi
