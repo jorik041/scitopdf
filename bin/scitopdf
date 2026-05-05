@@ -148,7 +148,7 @@ set_url() {
             return
         done
 
-        echo "${_R}Wrong provided URL${_RST}"
+        echo "${_R}Provided URL is unreachable${_RST}"
         exit 1
     fi
 
@@ -165,12 +165,17 @@ set_url() {
     curl -s "$site" > /dev/null
     [[ $? == 0 ]] && return
 
-    echo "${_R}$site unreachable. Try one of the following URL:${_RST}"
+    echo "${_Y}$site unreachable. Trying an alternative URL:${_RST}"
 
     local regex="\"https://(www.)?sci[^\"]+\""
     while read url; do
-        echo -e "\t- ${url//\"/}"
+        #echo -e "\t- ${url//\"/}"
+        curl -s "${url//\"/}" > /dev/null
+        [[ $? != 0 ]] && continue
+        site="${url//\"/}"
+        return
     done < <(curl -s -LH "" "https://www.sci-hub.pub/" | grep -Eo "$regex")
+    echo "${_R}Could not connect to Sci-Hub${_RST}"
     exit 1
 }
 
